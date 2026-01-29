@@ -34,10 +34,8 @@ class LottoMachine extends HTMLElement {
           --history-item-bg-color: #333;
 
           display: flex;
-          flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 40px;
           height: 100vh;
           padding: 20px;
           box-sizing: border-box;
@@ -54,6 +52,15 @@ class LottoMachine extends HTMLElement {
           --button-bg-color: #5cb85c;
           --button-text-color: white;
           --history-item-bg-color: #e9e9e9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
         }
 
         .ball {
@@ -92,7 +99,6 @@ class LottoMachine extends HTMLElement {
           border-radius: 12px;
           transition: background-color 0.3s, transform 0.1s;
           box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-          order: 2;
         }
 
         button:hover { filter: brightness(1.1); }
@@ -112,13 +118,14 @@ class LottoMachine extends HTMLElement {
           transform: scale(0.9) translateY(20px);
           transition: all 0.4s ease-in-out;
           visibility: hidden;
-          order: 1;
+          max-height: 0;
         }
 
         .results-panel.active {
           opacity: 1;
           transform: scale(1) translateY(0);
           visibility: visible;
+          max-height: 500px;
         }
 
         .results-title { margin: 0 0 20px 0; font-size: 2em; color: var(--button-bg-color); }
@@ -144,15 +151,27 @@ class LottoMachine extends HTMLElement {
           transition: all 0.3s;
         }
         
-        .history-title {
-          margin: 0 0 10px 0;
-          font-size: 1.2em;
-          color: var(--button-bg-color);
-          text-align: center;
-        }
-        
+        .history-title { margin: 0 0 10px 0; font-size: 1.2em; color: var(--button-bg-color); text-align: center; }
         .history-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-        .history-item { display: flex; align-items: center; gap: 8px; background-color: var(--history-item-bg-color); padding: 8px; border-radius: 5px; }
+        
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--history-item-bg-color);
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .history-number {
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--button-bg-color);
+            width: 20px;
+            text-align: right;
+            margin-right: 5px;
+        }
+        .history-ball-container { display: flex; gap: 4px; }
         .history-ball { width: 25px; height: 25px; font-size: 0.8em; font-weight: bold; }
 
         .theme-toggle-button {
@@ -171,6 +190,7 @@ class LottoMachine extends HTMLElement {
             justify-content: center;
             align-items: center;
             transition: all 0.3s;
+            z-index: 100;
         }
         .theme-toggle-button:hover { transform: scale(1.1); }
 
@@ -180,11 +200,14 @@ class LottoMachine extends HTMLElement {
         }
       </style>
       
-      <button>Press for Fortune</button>
-      <div class="results-panel">
-         <h3 class="results-title">Winning Numbers</h3>
-         <div class="result-balls"></div>
-      </div>
+      <main class="main-content">
+          <div class="results-panel">
+             <h3 class="results-title">Winning Numbers</h3>
+             <div class="result-balls"></div>
+          </div>
+          <button>Press for Fortune</button>
+      </main>
+      
       <div class="history-panel">
         <h4 class="history-title">Recent Draws</h4>
         <ul class="history-list"></ul>
@@ -254,16 +277,25 @@ class LottoMachine extends HTMLElement {
       const historyList = this.shadowRoot.querySelector('.history-list');
       historyList.innerHTML = '';
       
-      this.history.forEach(numbers => {
+      this.history.forEach((numbers, index) => {
           const item = document.createElement('li');
           item.classList.add('history-item');
           
-          numbers.forEach((number, index) => {
-              const colorClass = index < 5 ? `color-${(number % 5) + 1}` : 'powerball';
+          const numberEl = document.createElement('span');
+          numberEl.classList.add('history-number');
+          numberEl.textContent = `${index + 1}.`;
+          item.appendChild(numberEl);
+          
+          const ballContainer = document.createElement('div');
+          ballContainer.classList.add('history-ball-container');
+
+          numbers.forEach((number, i) => {
+              const colorClass = i < 5 ? `color-${(number % 5) + 1}` : 'powerball';
               const ball = this.createBall(number, colorClass);
               ball.classList.add('history-ball');
-              item.appendChild(ball);
+              ballContainer.appendChild(ball);
           });
+          item.appendChild(ballContainer);
           
           historyList.appendChild(item);
       });
