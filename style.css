@@ -1,17 +1,21 @@
 body {
   background-color: #121212;
-  color: #fff;
+  color: #e0e0e0;
   font-family: sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
-  overflow: hidden; /* Prevent scrollbars during animations */
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.light-mode {
+  background-color: #f0f0f0;
+  color: #333;
 }
 
 lotto-machine {
   display: block;
   width: 100%;
-  max-width: 500px;
 }
