@@ -244,14 +244,19 @@ class LottoMachine extends HTMLElement {
 
       resultsTitle.textContent = this.resultTitles[Math.floor(Math.random() * this.resultTitles.length)];
 
-      const whiteBalls = new Set();
-      while (whiteBalls.size < 5) {
-        whiteBalls.add(Math.floor(Math.random() * 69) + 1);
+      const whiteBalls = [];
+      while (whiteBalls.length < 5) {
+        const num = Math.floor(Math.random() * 69) + 1;
+        if (!whiteBalls.includes(num)) {
+          whiteBalls.push(num);
+        }
       }
+      
+      // Sort the main numbers in ascending order
+      whiteBalls.sort((a, b) => a - b);
+      
       const powerball = Math.floor(Math.random() * 26) + 1;
-
-      const sortedWhiteBalls = Array.from(whiteBalls).sort((a, b) => a - b);
-      const finalBalls = [...sortedWhiteBalls, powerball];
+      const finalBalls = [...whiteBalls, powerball];
       
       this.addToHistory(finalBalls);
 
