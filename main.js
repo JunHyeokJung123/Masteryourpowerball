@@ -234,11 +234,13 @@ class LottoMachine extends HTMLElement {
             </div>
         </div>
         <ins class="adsbygoogle"
-            style="display:block;width:728px;height:90px"
-            data-ad-client="ca-pub-6278607452967394"
-            data-ad-slot="YYYYYYYYYY"></ins>
+             style="display:block"
+             data-ad-client="ca-pub-6278607452967394"
+             data-ad-slot="7639016828"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
         <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
+             (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
       </div>
       <button class="theme-toggle-button">☀️</button>
