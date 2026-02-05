@@ -1,3 +1,4 @@
+
 class LottoMachine extends HTMLElement {
   constructor() {
     super();
@@ -232,6 +233,13 @@ class LottoMachine extends HTMLElement {
               <ul class="history-list"></ul>
             </div>
         </div>
+        <ins class="adsbygoogle"
+            style="display:block;width:728px;height:90px"
+            data-ad-client="ca-pub-6278607452967394"
+            data-ad-slot="YYYYYYYYYY"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
       </div>
       <button class="theme-toggle-button">☀️</button>
     `;
