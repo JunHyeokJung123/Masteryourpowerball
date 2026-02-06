@@ -95,32 +95,35 @@ class LottoMachine extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: block; width: 100%; }
-        .lotto-container { display: flex; flex-direction: column; align-items: center; gap: 30px; width: 100%; }
+        .lotto-container { display: flex; flex-direction: column; align-items: center; gap: 25px; width: 100%; }
         .button-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
         button { background-color: #48bb78; border: none; color: white; padding: 15px 30px; text-align: center; font-size: 1.1em; font-weight: bold; cursor: pointer; border-radius: 8px; transition: background-color 0.3s, transform 0.1s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
         button:hover { background-color: #38a169; }
         button:active { transform: scale(0.98); }
         button:disabled { background-color: #a0aec0; cursor: not-allowed; }
-        .results-panel { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); width: 100%; text-align: center; opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out; visibility: hidden; max-height: 0; }
-        .results-panel.active { opacity: 1; transform: translateY(0); visibility: visible; max-height: 1000px; }
-        .results-title { margin: 0 0 25px 0; font-size: 2em; font-weight: bold; color: #2c5282; }
-        .result-balls { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        .result-set { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .ball { width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.4em; font-weight: bold; color: #fff; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.3); border: 2px solid transparent; }
+        .results-panel { background-color: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); width: 100%; text-align: center; opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out; visibility: hidden; max-height: 0; }
+        .results-panel.active { opacity: 1; transform: translateY(0); visibility: visible; max-height: 1500px; }
+        .results-title { margin: 0 0 20px 0; font-size: 1.8em; font-weight: bold; color: #2c5282; }
+        
+        .result-balls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px 10px; justify-items: center; }
+        .result-balls.single-draw { grid-template-columns: 1fr; }
+
+        .result-set { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .ball { width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2em; font-weight: bold; color: #fff; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.3); border: 2px solid transparent; }
         .result-ball-animation { animation: growIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; transform: scale(0); }
         .ball-color-1 { background-color: #e53e3e; } .ball-color-2 { background-color: #3182ce; } .ball-color-3 { background-color: #38a169; } .ball-color-4 { background-color: #dd6b20; } .ball-color-5 { background-color: #805ad5; }
         .special-ball { background-color: #f6e05e; color: #2d3748 !important; border: 2px solid #d69e2e !important; }
-        .history-panel { margin-top: 20px; width: 100%; }
+        
+        .history-panel { margin-top: 15px; width: 100%; }
         .history-title { margin: 0 0 15px 0; font-size: 1.5em; color: #2c5282; text-align: center; }
-        .history-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-        .history-item { display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #ffffff; padding: 12px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
-        .history-ball-container { display: flex; gap: 6px; }
-        .history-ball { width: 30px; height: 30px; font-size: 0.9em; }
+        .history-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .history-item { display: flex; align-items: center; justify-content: center; gap: 8px; background-color: #ffffff; padding: 12px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        .history-ball-container { display: flex; gap: 5px; }
+        .history-ball { width: 28px; height: 28px; font-size: 0.8em; }
         @keyframes growIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         body.dark-mode .results-panel, body.dark-mode .history-item { background-color: #2d3748; }
         body.dark-mode .results-title, body.dark-mode .history-title { color: #63b3ed; }
-
       </style>
       <div class="lotto-container">
         <div class="button-container">
@@ -135,7 +138,7 @@ class LottoMachine extends HTMLElement {
           <h4 class="history-title">Recent Draws</h4>
           <ul class="history-list"></ul>
         </div>
-        <ins class="adsbygoogle" style="display:block; margin-top: 30px;" data-ad-client="ca-pub-6278607452967394" data-ad-slot="7639016828" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <ins class="adsbygoogle" style="display:block; margin-top: 20px;" data-ad-client="ca-pub-6278607452967394" data-ad-slot="7639016828" data-ad-format="auto" data-full-width-responsive="true"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
     `;
@@ -156,6 +159,13 @@ class LottoMachine extends HTMLElement {
       const resultBallsContainer = this.shadowRoot.querySelector('.result-balls');
       const resultsTitle = this.shadowRoot.querySelector('.results-title');
       resultBallsContainer.innerHTML = '';
+
+      if (count === 1) {
+        resultBallsContainer.classList.add('single-draw');
+      } else {
+        resultBallsContainer.classList.remove('single-draw');
+      }
+
       resultsTitle.textContent = this.resultTitles[Math.floor(Math.random() * this.resultTitles.length)];
 
       for (let i = 0; i < count; i++) {
@@ -175,7 +185,7 @@ class LottoMachine extends HTMLElement {
         currentSet.forEach((number, index) => {
             const isSpecial = index === whiteConfig.count;
             const ball = this.createResultBall(number, isSpecial, number);
-            ball.style.animationDelay = `${i * 0.15 + index * 0.08}s`;
+            ball.style.animationDelay = `${i * 0.1 + index * 0.05}s`;
             resultSetDiv.appendChild(ball);
         });
         resultBallsContainer.appendChild(resultSetDiv);
@@ -189,7 +199,9 @@ class LottoMachine extends HTMLElement {
   
   addToHistory(numbers) {
       this.history.unshift(numbers);
-      if (this.history.length > 5) this.history.pop();
+      if (this.history.length > 10) { // Keep 10 items
+          this.history.pop();
+      }
       this.updateHistory();
   }
   
