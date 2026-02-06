@@ -2,22 +2,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lucky Lotto Number Generator</title>
+  <title>All-in-One Lotto Number Generator</title>
   <link rel="stylesheet" href="style.css">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6278607452967394"
      crossorigin="anonymous"></script>
   <meta name="google-adsense-account" content="ca-pub-6278607452967394">
 </head>
 <body>
-  <nav>
-    <a href="#">Lucky Lotto Number Generator</a>
-  </nav>
-  <div id="content">
-    <div id="lotto" class="page">
-      <h1>Test Your Luck!</h1>
-      <p>Ready to see your fortune? Our generator provides you with random, unique sets of lottery numbers. Click the buttons below to generate your lucky numbers and see if destiny is on your side!</p>
-      <lotto-machine></lotto-machine>
-    </div>
+  <div class="container">
+    <aside class="sidebar">
+      <h2 class="sidebar-title">Lotteries</h2>
+      <ul class="lottery-list"></ul>
+    </aside>
+    <main class="main-content">
+        <div id="lotto-display">
+            <h1 id="lotto-name"></h1>
+            <p id="lotto-tagline"></p>
+            <lotto-machine></lotto-machine>
+        </div>
+        <div id="lotto-info"></div>
+    </main>
   </div>
   <script src="main.js"></script>
 </body>
