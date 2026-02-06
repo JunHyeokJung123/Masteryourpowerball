@@ -108,8 +108,8 @@ class LottoMachine extends HTMLElement {
         .result-set { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .ball { width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.4em; font-weight: bold; color: #fff; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.3); border: 2px solid transparent; }
         .result-ball-animation { animation: growIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; transform: scale(0); }
-        .white-ball { background-color: #3182ce; }
-        .special-ball { background-color: #e53e3e; color: #fff; border-color: #c53030; }
+        .ball-color-1 { background-color: #e53e3e; } .ball-color-2 { background-color: #3182ce; } .ball-color-3 { background-color: #38a169; } .ball-color-4 { background-color: #dd6b20; } .ball-color-5 { background-color: #805ad5; }
+        .special-ball { background-color: #f6e05e; color: #2d3748 !important; border: 2px solid #d69e2e !important; }
         .history-panel { margin-top: 20px; width: 100%; }
         .history-title { margin: 0 0 15px 0; font-size: 1.5em; color: #2c5282; text-align: center; }
         .history-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
@@ -117,6 +117,10 @@ class LottoMachine extends HTMLElement {
         .history-ball-container { display: flex; gap: 6px; }
         .history-ball { width: 30px; height: 30px; font-size: 0.9em; }
         @keyframes growIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        body.dark-mode .results-panel, body.dark-mode .history-item { background-color: #2d3748; }
+        body.dark-mode .results-title, body.dark-mode .history-title { color: #63b3ed; }
+
       </style>
       <div class="lotto-container">
         <div class="button-container">
@@ -170,7 +174,7 @@ class LottoMachine extends HTMLElement {
         
         currentSet.forEach((number, index) => {
             const isSpecial = index === whiteConfig.count;
-            const ball = this.createResultBall(number, isSpecial);
+            const ball = this.createResultBall(number, isSpecial, number);
             ball.style.animationDelay = `${i * 0.15 + index * 0.08}s`;
             resultSetDiv.appendChild(ball);
         });
@@ -206,7 +210,7 @@ class LottoMachine extends HTMLElement {
 
           numbers.forEach((number, i) => {
               const isSpecial = i === this.config.whiteBalls.count;
-              const ball = this.createBall(number, isSpecial);
+              const ball = this.createBall(number, isSpecial, number);
               ball.classList.add('history-ball');
               ballContainer.appendChild(ball);
           });
@@ -215,15 +219,20 @@ class LottoMachine extends HTMLElement {
       });
   }
 
-  createBall(number, isSpecial) {
+  createBall(number, isSpecial, value) {
     const ballEl = document.createElement('div');
-    ballEl.classList.add('ball', isSpecial ? 'special-ball' : 'white-ball');
+    ballEl.classList.add('ball');
+    if (isSpecial) {
+        ballEl.classList.add('special-ball');
+    } else {
+        ballEl.classList.add(`ball-color-${(value % 5) + 1}`);
+    }
     ballEl.textContent = number;
     return ballEl;
   }
 
-  createResultBall(number, isSpecial) {
-    const ball = this.createBall(number, isSpecial);
+  createResultBall(number, isSpecial, value) {
+    const ball = this.createBall(number, isSpecial, value);
     ball.classList.add('result-ball-animation');
     return ball;
   }
@@ -237,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lottoNameEl = document.getElementById('lotto-name');
     const lottoTaglineEl = document.getElementById('lotto-tagline');
     const lottoInfoEl = document.getElementById('lotto-info');
+    const themeToggle = document.getElementById('theme-toggle');
     let currentLotto = '';
 
     function switchLotto(key) {
@@ -261,6 +271,23 @@ document.addEventListener('DOMContentLoaded', () => {
         li.textContent = lotteries[key].name;
         li.addEventListener('click', () => switchLotto(key));
         lotteryList.appendChild(li);
+    });
+
+    // Theme toggle functionality
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.classList.add(savedTheme + '-mode');
+    lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.add(savedTheme + '-mode');
+    themeToggle.innerHTML = savedTheme === 'light' ? '🌙' : '☀️';
+
+    themeToggle.addEventListener('click', () => {
+        let currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+        let newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.body.classList.remove(currentTheme + '-mode');
+        document.body.classList.add(newTheme + '-mode');
+        lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.remove(currentTheme + '-mode');
+        lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.add(newTheme + '-mode');
+        localStorage.setItem('theme', newTheme);
+        themeToggle.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
     });
 
     // Set the default lottery on page load
