@@ -265,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newsContentEl = document.getElementById('news-content');
 
     let currentLotto = '';
+    let analysisCache = {}; // Cache for analysis data
 
     function switchLotto(key) {
         if (currentLotto === key) return;
@@ -293,38 +294,91 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Function to generate and render analysis
+    function renderAnalysis(lottoKey) {
+        const config = lotteries[lottoKey];
+        if (!analysisCache[lottoKey]) {
+            analysisCache[lottoKey] = generateAnalysis(config);
+        }
+        const { hotWhite, coldWhite, hotSpecial, coldSpecial } = analysisCache[lottoKey];
+
+        const analysisHTML = `
+            <p>This analysis identifies numbers that have been drawn frequently (hot) and infrequently (cold) in the last 200 simulated drawings for ${config.name}. This is for entertainment purposes and does not guarantee future results.</p>
+            <br>
+            <h3>Hot Numbers</h3>
+            <p><strong>White Balls:</strong> ${hotWhite.join(', ' )}</p>
+            <p><strong>${config.specialBall.name}:</strong> ${hotSpecial.join(', ' )}</p>
+            <br>
+            <h3>Cold Numbers</h3>
+            <p><strong>White Balls:</strong> ${coldWhite.join(', ' )}</p>
+            <p><strong>${config.specialBall.name}:</strong> ${coldSpecial.join(', ' )}</p>`;
+        analysisContentEl.innerHTML = analysisHTML;
+    }
+
+    // Function to generate mock news
+    function renderNews(lottoKey) {
+        const config = lotteries[lottoKey];
+        const newsHTML = `
+            <article>
+                <h4>Historic ${config.name} Jackpot Won!</h4>
+                <p>A lucky individual in Anytown, USA, has claimed the record-breaking jackpot. The winning ticket was sold at a local convenience store.</p>
+                <p><em>(Note: This is a sample news article. In a real application, this would be fed by a live news API.)</em></p>
+            </article>
+            <br>
+            <article>
+                <h4>Lottery Scams on the Rise: How to Protect Yourself</h4>
+                <p>Officials are warning the public about a recent surge in lottery-related scams. Remember, you never have to pay a fee to collect a legitimate lottery prize.</p>
+            </article>`;
+        newsContentEl.innerHTML = newsHTML;
+    }
+
+    // Main function to fetch and display data
     async function fetchAnalysisAndNews(lottoKey) {
-        // Placeholder function - this will be replaced with actual API calls
         analysisContentEl.innerHTML = `<p>Loading analysis for ${lotteries[lottoKey].name}...</p>`;
         newsContentEl.innerHTML = `<p>Loading news for ${lotteries[lottoKey].name}...</p>`;
 
         // Simulate API delay
         setTimeout(() => {
-            const analysisHTML = `
-                <p>This analysis identifies numbers that have been drawn frequently (hot) and infrequently (cold) in recent ${lotteries[lottoKey].name} drawings. Please note, this is for entertainment purposes only and does not guarantee future results.</p>
-                <br>
-                <h3>Hot Numbers (Last 50 Drawings)</h3>
-                <p><strong>White Balls:</strong> 1, 2, 3, 4, 5</p>
-                <p><strong>Special Ball:</strong> 1</p>
-                <br>
-                <h3>Cold Numbers (Last 50 Drawings)</h3>
-                <p><strong>White Balls:</strong> 95, 96, 97, 98, 99</p>
-                <p><strong>Special Ball:</strong> 25</p>`;
+            renderAnalysis(lottoKey);
+            renderNews(lottoKey);
+        }, 800);
+    }
 
-            const newsHTML = `
-                <article>
-                    <h4>Historic ${lotteries[lottoKey].name} Jackpot Won!</h4>
-                    <p>A lucky individual has claimed the record-breaking jackpot. The winning ticket was sold in Anytown, USA.</p>
-                </article>
-                <br>
-                <article>
-                    <h4>Tips for Forming a Lottery Pool</h4>
-                    <p>Playing with friends or colleagues? Our guide covers the do's and don'ts of creating a lottery pool to share the fun and the potential winnings.</p>
-                </article>`;
+    // Helper function to generate analysis data
+    function generateAnalysis(config) {
+        const whiteBallFreq = {};
+        const specialBallFreq = {};
+        const numDrawings = 200;
 
-            analysisContentEl.innerHTML = analysisHTML;
-            newsContentEl.innerHTML = newsHTML;
-        }, 1000);
+        for (let i = 0; i < numDrawings; i++) {
+            // Generate white balls
+            const whiteBalls = new Set();
+            while (whiteBalls.size < config.whiteBalls.count) {
+                const num = Math.floor(Math.random() * config.whiteBalls.max) + 1;
+                whiteBalls.add(num);
+            }
+            whiteBalls.forEach(num => {
+                whiteBallFreq[num] = (whiteBallFreq[num] || 0) + 1;
+            });
+
+            // Generate special ball
+            const specialBall = Math.floor(Math.random() * config.specialBall.max) + 1;
+            specialBallFreq[specialBall] = (specialBallFreq[specialBall] || 0) + 1;
+        }
+
+        const sortAndPick = (freqMap, count, ascending = true) => {
+            return Object.entries(freqMap)
+                .sort(([,a], [,b]) => ascending ? a - b : b - a)
+                .slice(0, count)
+                .map(([num]) => parseInt(num));
+        };
+
+        return {
+            hotWhite: sortAndPick(whiteBallFreq, 5, false),
+            coldWhite: sortAndPick(whiteBallFreq, 5, true),
+            hotSpecial: sortAndPick(specialBallFreq, 1, false),
+            coldSpecial: sortAndPick(specialBallFreq, 1, true)
+        };
     }
 
     Object.keys(lotteries).forEach(key => {
@@ -343,7 +397,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme toggle functionality
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.classList.add(savedTheme + '-mode');
-    lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.add(savedTheme + '-mode');
+    try {
+      lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.add(savedTheme + '-mode');
+    } catch (e) {}
     themeToggle.innerHTML = savedTheme === 'light' ? '🌙' : '☀️';
 
     themeToggle.addEventListener('click', () => {
@@ -351,8 +407,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let newTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.body.classList.remove(currentTheme + '-mode');
         document.body.classList.add(newTheme + '-mode');
-        lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.remove(currentTheme + '-mode');
-        lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.add(newTheme + '-mode');
+        try {
+          lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.remove(currentTheme + '-mode');
+          lottoMachine.shadowRoot.querySelector('body, .lotto-container').classList.add(newTheme + '-mode');
+        } catch (e) {}
         localStorage.setItem('theme', newTheme);
         themeToggle.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
     });
