@@ -15,50 +15,35 @@
         <h2 class="sidebar-title">Lotteries</h2>
         <ul class="lottery-list"></ul>
       </div>
-      <div>
-        <h2 class="sidebar-title" id="analysis-news-menu">Analysis & News</h2>
-      </div>
       <button id="theme-toggle">☀️</button>
     </aside>
     <main class="main-content">
+      <div class="tabs">
+        <button class="tab-link active" data-tab="generator">Generator & Info</button>
+        <button class="tab-link" data-tab="analysis">Analysis & News</button>
+      </div>
+
+      <div id="generator" class="tab-content active">
         <div id="lotto-display">
             <h1 id="lotto-name"></h1>
             <p id="lotto-tagline"></p>
             <lotto-machine></lotto-machine>
         </div>
         <div id="lotto-info"></div>
-        <div id="analysis-news-content" style="display: none;">
+      </div>
+
+      <div id="analysis" class="tab-content">
+        <div id="analysis-news-content">
             <div id="past-winning-analysis">
-                <h2>Past Winning Number Analysis: Powerball</h2>
-                <p>This analysis identifies numbers that have been drawn frequently (hot) and infrequently (cold) in recent Powerball drawings. Please note, this is for entertainment purposes only and does not guarantee future results.</p>
-                <br>
-                <h3>Hot Numbers (Last 50 Drawings)</h3>
-                <p><strong>White Balls:</strong> 23, 32, 61, 64, 69</p>
-                <p><strong>Powerball:</strong> 18</p>
-                <br>
-                <h3>Cold Numbers (Last 50 Drawings)</h3>
-                <p><strong>White Balls:</strong> 4, 16, 47, 57, 60</p>
-                <p><strong>Powerball:</strong> 23</p>
+                <h2>Past Winning Number Analysis</h2>
+                <div id="analysis-content"></div>
             </div>
-            <br>
             <div id="related-news-articles">
                 <h2>Related News and Articles</h2>
-                <article>
-                    <h4>Historic Jackpot Won by a Single Ticket Holder</h4>
-                    <p>A lucky individual from California has claimed the record-breaking $2.04 billion Powerball jackpot. The winning ticket was sold at Joe's Service Center in Altadena. The winner's identity has not yet been revealed.</p>
-                </article>
-                <br>
-                <article>
-                    <h4>Lottery Winner's Guide to Financial Planning</h4>
-                    <p>Winning the lottery can be life-changing, but it also comes with significant financial responsibilities. This guide offers essential tips for managing your newfound wealth, from hiring a financial advisor to creating a long-term investment strategy.</p>
-                </article>
-                 <br>
-                <article>
-                    <h4>The Psychology of Playing the Lottery</h4>
-                    <p>Why do people continue to play the lottery despite the astronomical odds? This article delves into the psychological factors that drive lottery participation, including the allure of instant wealth, the entertainment value of the draw, and the social aspects of group play.</p>
-                </article>
+                <div id="news-content"></div>
             </div>
         </div>
+      </div>
     </main>
   </div>
   <script src="main.js"></script>

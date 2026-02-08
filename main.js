@@ -12,7 +12,6 @@ const lotteries = {
       <p>Players select five numbers from a set of 69 white balls and one number from a set of 26 red Powerballs. The odds of winning the jackpot are approximately 1 in 292.2 million.</p>
     `
   },
-  //fuck
   megamillions: {
     name: "Mega Millions",
     tagline: "Famous for its jaw-dropping jackpots! Drawings are held every Tuesday and Friday.",
@@ -260,15 +259,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const lottoTaglineEl = document.getElementById('lotto-tagline');
     const lottoInfoEl = document.getElementById('lotto-info');
     const themeToggle = document.getElementById('theme-toggle');
-    const analysisNewsMenu = document.getElementById('analysis-news-menu');
-    const analysisNewsContent = document.getElementById('analysis-news-content');
-    const lottoDisplay = document.getElementById('lotto-display');
+    const tabs = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const analysisContentEl = document.getElementById('analysis-content');
+    const newsContentEl = document.getElementById('news-content');
+
     let currentLotto = '';
 
     function switchLotto(key) {
-        lottoDisplay.style.display = 'block';
-        lottoInfoEl.style.display = 'block';
-        analysisNewsContent.style.display = 'none';
         if (currentLotto === key) return;
         currentLotto = key;
 
@@ -281,7 +279,52 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.lottery-list-item').forEach(item => {
             item.classList.toggle('active', item.dataset.lotto === key);
         });
-        analysisNewsMenu.classList.remove('active');
+
+        // Reset to generator tab whenever a new lottery is selected
+        switchTab('generator');
+    }
+
+    function switchTab(tab) {
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+        tabContents.forEach(c => c.classList.toggle('active', c.id === tab));
+
+        if (tab === 'analysis') {
+            fetchAnalysisAndNews(currentLotto);
+        }
+    }
+
+    async function fetchAnalysisAndNews(lottoKey) {
+        // Placeholder function - this will be replaced with actual API calls
+        analysisContentEl.innerHTML = `<p>Loading analysis for ${lotteries[lottoKey].name}...</p>`;
+        newsContentEl.innerHTML = `<p>Loading news for ${lotteries[lottoKey].name}...</p>`;
+
+        // Simulate API delay
+        setTimeout(() => {
+            const analysisHTML = `
+                <p>This analysis identifies numbers that have been drawn frequently (hot) and infrequently (cold) in recent ${lotteries[lottoKey].name} drawings. Please note, this is for entertainment purposes only and does not guarantee future results.</p>
+                <br>
+                <h3>Hot Numbers (Last 50 Drawings)</h3>
+                <p><strong>White Balls:</strong> 1, 2, 3, 4, 5</p>
+                <p><strong>Special Ball:</strong> 1</p>
+                <br>
+                <h3>Cold Numbers (Last 50 Drawings)</h3>
+                <p><strong>White Balls:</strong> 95, 96, 97, 98, 99</p>
+                <p><strong>Special Ball:</strong> 25</p>`;
+
+            const newsHTML = `
+                <article>
+                    <h4>Historic ${lotteries[lottoKey].name} Jackpot Won!</h4>
+                    <p>A lucky individual has claimed the record-breaking jackpot. The winning ticket was sold in Anytown, USA.</p>
+                </article>
+                <br>
+                <article>
+                    <h4>Tips for Forming a Lottery Pool</h4>
+                    <p>Playing with friends or colleagues? Our guide covers the do's and don'ts of creating a lottery pool to share the fun and the potential winnings.</p>
+                </article>`;
+
+            analysisContentEl.innerHTML = analysisHTML;
+            newsContentEl.innerHTML = newsHTML;
+        }, 1000);
     }
 
     Object.keys(lotteries).forEach(key => {
@@ -293,15 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
         lotteryList.appendChild(li);
     });
 
-    analysisNewsMenu.addEventListener('click', () => {
-        lottoDisplay.style.display = 'none';
-        lottoInfoEl.style.display = 'none';
-        analysisNewsContent.style.display = 'block';
-        currentLotto = '';
-        document.querySelectorAll('.lottery-list-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        analysisNewsMenu.classList.add('active');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
     });
 
     // Theme toggle functionality
