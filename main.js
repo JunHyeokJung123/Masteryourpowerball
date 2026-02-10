@@ -5,6 +5,7 @@ const lotteries = {
     tagline: "The original giant jackpot game! Drawings are held every Monday, Wednesday, and Saturday.",
     whiteBalls: { count: 5, max: 69 },
     specialBall: { name: "Powerball", max: 26 },
+    api: "https://data.ny.gov/api/views/d6yy-54nr/rows.json?accessType=DOWNLOAD",
     info: `
       <h3>About Powerball</h3>
       <p>Powerball is one of the most popular lottery games in the United States, known for its massive jackpots. It began in 1992 and has since delivered some of the largest prizes in lottery history.</p>
@@ -17,11 +18,25 @@ const lotteries = {
     tagline: "Famous for its jaw-dropping jackpots! Drawings are held every Tuesday and Friday.",
     whiteBalls: { count: 5, max: 70 },
     specialBall: { name: "Mega Ball", max: 25 },
+    api: "https://data.ny.gov/api/views/5xaw-6ayf/rows.json?accessType=DOWNLOAD",
     info: `
       <h3>About Mega Millions</h3>
       <p>Mega Millions is another major multi-state lottery in the U.S. It was first introduced in 1996 as "The Big Game" and has grown to become a household name for lottery enthusiasts.</p>
       <h3>How to Play</h3>
       <p>To play, you pick five different numbers from 1 to 70 and one Mega Ball number from 1 to 25. The odds of hitting the jackpot are about 1 in 302.5 million.</p>
+    `
+  },
+    cash4life: {
+    name: "Cash4Life",
+    tagline: "Your second chance at a lifetime of winnings! Drawings are held daily.",
+    whiteBalls: { count: 5, max: 60 },
+    specialBall: { name: "Cash Ball", max: 4 },
+    api: "https://data.ny.gov/api/views/kwxv-fwze/rows.json?accessType=DOWNLOAD",
+    info: `
+      <h3>About Cash4Life</h3>
+      <p>Similar to Lucky for Life, Cash4Life offers a top prize of $1,000 a day for life, and a second prize of $1,000 a week for life. It is played across several states.</p>
+      <h3>How to Play</h3>
+      <p>Select five numbers from 1 to 60 and one Cash Ball from 1 to 4. The odds of winning the grand prize are roughly 1 in 21.8 million.</p>
     `
   },
   euromillions: {
@@ -58,18 +73,6 @@ const lotteries = {
       <p>This lottery offers a unique top prize: $1,000 per day for the rest of your life. It started in 2009 in Connecticut and has expanded to many other states.</p>
       <h3>How to Play</h3>
       <p>Players choose five numbers from 1 to 48 and one Lucky Ball from 1 to 18. The odds of winning the top prize are approximately 1 in 30.8 million.</p>
-    `
-  },
-  cash4life: {
-    name: "Cash4Life",
-    tagline: "Your second chance at a lifetime of winnings! Drawings are held daily.",
-    whiteBalls: { count: 5, max: 60 },
-    specialBall: { name: "Cash Ball", max: 4 },
-    info: `
-      <h3>About Cash4Life</h3>
-      <p>Similar to Lucky for Life, Cash4Life offers a top prize of $1,000 a day for life, and a second prize of $1,000 a week for life. It is played across several states.</p>
-      <h3>How to Play</h3>
-      <p>Select five numbers from 1 to 60 and one Cash Ball from 1 to 4. The odds of winning the grand prize are roughly 1 in 21.8 million.</p>
     `
   },
   lottoamerica: {
@@ -305,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newsContentEl = document.getElementById('news-content');
 
     let currentLotto = '';
-    let analysisCache = {}; // Cache for analysis data
+    let analysisCache = {}; 
 
     function switchLotto(key) {
         if (currentLotto === key) return;
@@ -321,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.toggle('active', item.dataset.lotto === key);
         });
 
-        // Reset to generator tab whenever a new lottery is selected
         switchTab('generator');
     }
 
@@ -334,33 +336,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to generate and render analysis
-    function renderAnalysis(lottoKey) {
+    async function renderAnalysis(lottoKey, analysisData) {
         const config = lotteries[lottoKey];
-        if (!analysisCache[lottoKey]) {
-            analysisCache[lottoKey] = generateAnalysis(config);
-        }
-        const { hotWhite, coldWhite, hotSpecial, coldSpecial } = analysisCache[lottoKey];
+        const { hotWhite, coldWhite, hotSpecial, coldSpecial, isRealData, drawCount } = analysisData;
 
-        let analysisHTML = `
-            <p>This analysis identifies numbers that have been drawn frequently (hot) and infrequently (cold) in the last 200 simulated drawings for ${config.name}. This is for entertainment purposes and does not guarantee future results.</p>
-            <br>
-            <h3>Hot Numbers</h3>
-            <p><strong>White Balls:</strong> ${hotWhite.join(', ')}</p>`;
+        let analysisHTML = `<p>This analysis identifies numbers that have been drawn frequently (hot) and infrequently (cold) in the last <strong>${drawCount} ${isRealData ? 'draws' : 'simulated drawings'}</strong> for ${config.name}. This is for entertainment purposes and does not guarantee future results.</p><br>
+                            <h3>Hot Numbers</h3>
+                            <p><strong>White Balls:</strong> ${hotWhite.join(', ')}</p>`;
         if (config.specialBall) {
-            analysisHTML += `<p><strong>${config.specialBall.name}:</strong> ${hotSpecial.join(', ')}</p>`;
+            analysisHTML += `<p><strong>${config.specialBall.name}:</strong> ${hotSpecial ? hotSpecial.join(', ') : 'N/A'}</p>`;
         }
-        analysisHTML += `
-            <br>
-            <h3>Cold Numbers</h3>
-            <p><strong>White Balls:</strong> ${coldWhite.join(', ')}</p>`;
+        analysisHTML += `<br><h3>Cold Numbers</h3><p><strong>White Balls:</strong> ${coldWhite.join(', ')}</p>`;
         if (config.specialBall) {
-            analysisHTML += `<p><strong>${config.specialBall.name}:</strong> ${coldSpecial.join(', ')}</p>`;
+            analysisHTML += `<p><strong>${config.specialBall.name}:</strong> ${coldSpecial ? coldSpecial.join(', ') : 'N/A'}</p>`;
         }
         analysisContentEl.innerHTML = analysisHTML;
     }
 
-    // Function to generate mock news
     function renderNews(lottoKey) {
         const config = lotteries[lottoKey];
         const newsHTML = `
@@ -377,26 +369,67 @@ document.addEventListener('DOMContentLoaded', () => {
         newsContentEl.innerHTML = newsHTML;
     }
 
-    // Main function to fetch and display data
     async function fetchAnalysisAndNews(lottoKey) {
         analysisContentEl.innerHTML = `<p>Loading analysis for ${lotteries[lottoKey].name}...</p>`;
-        newsContentEl.innerHTML = `<p>Loading news for ${lotteries[lottoKey].name}...</p>`;
+        newsContentEl.innerHTML = `<p>Loading news for ${lotteries[lottoKey].name}... (This is sample data)</p>`;
+        
+        const config = lotteries[lottoKey];
 
-        // Simulate API delay
-        setTimeout(() => {
-            renderAnalysis(lottoKey);
+        if (analysisCache[lottoKey]) {
+            await renderAnalysis(lottoKey, analysisCache[lottoKey]);
             renderNews(lottoKey);
-        }, 800);
+            return;
+        }
+
+        try {
+            let analysisData;
+            if (config.api) {
+                analysisData = await fetchRealDataAnalysis(config);
+            } else {
+                analysisData = generateSimulatedAnalysis(config);
+            }
+            analysisCache[lottoKey] = analysisData;
+            await renderAnalysis(lottoKey, analysisData);
+        } catch (error) {
+            console.error('Error fetching or processing analysis data:', error);
+            analysisContentEl.innerHTML = `<p>Sorry, we couldn't load the analysis for ${config.name} at this time. Please try again later.</p>`;
+        } finally {
+            renderNews(lottoKey); // Render mock news regardless
+        }
     }
 
-    // Helper function to generate analysis data
-    function generateAnalysis(config) {
+    async function fetchRealDataAnalysis(config) {
+        const response = await fetch(config.api);
+        const jsonData = await response.json();
+        const drawData = jsonData.data;
+
+        const whiteBallFreq = {};
+        const specialBallFreq = {};
+
+        drawData.forEach(draw => {
+            const numbers = draw[8].split(' ').map(Number);
+            const specialBall = parseInt(draw[9], 10);
+
+            numbers.forEach(num => {
+                whiteBallFreq[num] = (whiteBallFreq[num] || 0) + 1;
+            });
+            if (config.specialBall) {
+                specialBallFreq[specialBall] = (specialBallFreq[specialBall] || 0) + 1;
+            }
+        });
+
+        const analysis = processFrequencyMaps(whiteBallFreq, specialBallFreq, config);
+        analysis.isRealData = true;
+        analysis.drawCount = drawData.length;
+        return analysis;
+    }
+
+    function generateSimulatedAnalysis(config) {
         const whiteBallFreq = {};
         const specialBallFreq = {};
         const numDrawings = 200;
 
         for (let i = 0; i < numDrawings; i++) {
-            // Generate white balls
             const whiteBalls = new Set();
             while (whiteBalls.size < config.whiteBalls.count) {
                 const num = Math.floor(Math.random() * config.whiteBalls.max) + 1;
@@ -406,20 +439,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 whiteBallFreq[num] = (whiteBallFreq[num] || 0) + 1;
             });
 
-            // Generate special ball
             if (config.specialBall) {
                 const specialBall = Math.floor(Math.random() * config.specialBall.max) + 1;
                 specialBallFreq[specialBall] = (specialBallFreq[specialBall] || 0) + 1;
             }
         }
-
-        const sortAndPick = (freqMap, count, ascending = true) => {
-            return Object.entries(freqMap)
-                .sort(([,a], [,b]) => ascending ? a - b : b - a)
-                .slice(0, count)
-                .map(([num]) => parseInt(num));
-        };
         
+        const analysis = processFrequencyMaps(whiteBallFreq, specialBallFreq, config);
+        analysis.isRealData = false;
+        analysis.drawCount = numDrawings;
+        return analysis;
+    }
+    
+    function processFrequencyMaps(whiteBallFreq, specialBallFreq, config) {
+        const sortAndPick = (freqMap, count, ascending = true) => {
+            const sorted = Object.entries(freqMap).sort(([,a], [,b]) => ascending ? a - b : b - a);
+            return sorted.slice(0, count).map(([num]) => parseInt(num));
+        };
+
         const analysis = {
             hotWhite: sortAndPick(whiteBallFreq, 5, false),
             coldWhite: sortAndPick(whiteBallFreq, 5, true),
@@ -429,7 +466,6 @@ document.addEventListener('DOMContentLoaded', () => {
             analysis.hotSpecial = sortAndPick(specialBallFreq, 1, false);
             analysis.coldSpecial = sortAndPick(specialBallFreq, 1, true);
         }
-
         return analysis;
     }
 
@@ -446,7 +482,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
     });
 
-    // Theme toggle functionality
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.classList.add(savedTheme + '-mode');
     try {
@@ -467,6 +502,5 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggle.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
     });
 
-    // Set the default lottery on page load
     switchLotto('powerball');
 });
